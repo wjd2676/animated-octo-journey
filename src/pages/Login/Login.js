@@ -8,29 +8,48 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const navigateTodoHandle = (res) => {
-    if (res) return navigate("/todo");
-    else alert("로그인실패");
+  const navigateLoginHandle = (res) => {
+    if (res.access_token) {
+      localStorage.setItem("SignInJWT", res.access_token);
+      navigate("/todo");
+    }
+  };
+
+  const alertHandle = (res) => {
+    if (res.message) {
+      alert(res.message);
+    } else return;
+  };
+
+  const requestHandle = (res) => {
+    alertHandle(res);
+    navigateLoginHandle(res);
   };
 
   const signInButtonHandle = () => {
-    fetch(`http://localhost:8000/auth/signin`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: `${userID}`,
-        password: `${userPW}`,
-      }),
-    })
+    fetch(
+      `https://5co7shqbsf.execute-api.ap-northeast-2.amazonaws.com/production/auth/signin`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: `${userID}`,
+          password: `${userPW}`,
+        }),
+      }
+    )
       .then((res) => res.json())
-      .then((res) => navigateTodoHandle(res.access_token));
+      .then((res) => requestHandle(res));
   };
   return (
     <LoginContainer>
       {!localStorage.getItem("SignUpJWT") && (
         <Navigate to="/signup" replace={true} />
+      )}
+      {localStorage.getItem("SignInJWT") && (
+        <Navigate to="/todo" replace={true} />
       )}
       <LoginContent>
         <LoginText>Login</LoginText>

@@ -1,7 +1,153 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { useNavigate, Navigate } from "react-router-dom";
 const Todo = () => {
-  return <div>Todo</div>;
+  const [userInputTodo, setUserInputTodo] = useState("");
+  const [getTodo, setGetTodo] = useState([]);
+  const [submitRes, setSubmitRes] = useState({});
+  useEffect(() => {
+    fetch(
+      `https://5co7shqbsf.execute-api.ap-northeast-2.amazonaws.com/production/todos`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(`SignInJWT`)}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => setGetTodo(res));
+  }, [submitRes]);
+
+  const TodoSubmitHandle = () => {
+    fetch(
+      `https://5co7shqbsf.execute-api.ap-northeast-2.amazonaws.com/production/todos`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(`SignInJWT`)}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          todo: `${userInputTodo}`,
+        }),
+      }
+    ).then((res) => setSubmitRes(res));
+  };
+
+  console.log(getTodo);
+
+  const TodoDeleteHandle = (id) => {
+    fetch(
+      `https://5co7shqbsf.execute-api.ap-northeast-2.amazonaws.com/production/todos/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(`SignInJWT`)}`,
+        },
+      }
+    ).then((res) => setSubmitRes(res));
+  };
+
+  return (
+    <div>
+      {!localStorage.getItem("SignInJWT") && <Navigate to="/" replace={true} />}
+      <TodoContainer>
+        <TodoGetContent>
+          {getTodo.map((data) => (
+            <TodoList key={data.id}>
+              <TodoText>{data.todo}</TodoText>
+              <input
+                type="checkbox"
+                defaultChecked={data.isCompleted}
+                disabled
+              />
+              <TodoUpdateButton>수정</TodoUpdateButton>
+              <TodoDeleteButton
+                onClick={() => {
+                  TodoDeleteHandle(data.id);
+                }}
+              >
+                삭제
+              </TodoDeleteButton>
+            </TodoList>
+          ))}
+        </TodoGetContent>
+        <TodoPostContent>
+          <TodoInput
+            type="text"
+            onChange={(e) => setUserInputTodo(e.target.value)}
+          ></TodoInput>
+          <TodoSubmit
+            onClick={(e) => {
+              TodoSubmitHandle();
+            }}
+          >
+            제출
+          </TodoSubmit>
+        </TodoPostContent>
+      </TodoContainer>
+    </div>
+  );
 };
+
+const TodoContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+`;
+
+const TodoGetContent = styled.div`
+  border: 2px solid blue;
+  width: 40%;
+  min-width: 600px;
+  min-height: 600px;
+`;
+
+const TodoList = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+`;
+
+const TodoText = styled.div`
+  width: 400px;
+  white-space: wrap;
+`;
+
+const TodoDeleteButton = styled.button`
+  width: 40px;
+  height: 20px;
+`;
+
+const TodoUpdateButton = styled.button`
+  width: 40px;
+  height: 20px;
+`;
+
+const TodoPostContent = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  border: 2px solid red;
+  width: 40%;
+  min-width: 600px;
+  height: 200px;
+`;
+
+const TodoInput = styled.input`
+  width: 70%;
+  height: 150px;
+`;
+
+const TodoSubmit = styled.button`
+  width: 50px;
+  height: 30px;
+`;
 
 export default Todo;

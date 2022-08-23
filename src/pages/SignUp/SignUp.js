@@ -8,25 +8,38 @@ const SignUp = () => {
 
   const navigate = useNavigate();
 
-  const navigateLoginHandle = () => {
-    if (localStorage.getItem("SignUpJWT")) return navigate("/");
-    else alert("회원가입실패");
+  const navigateLoginHandle = (res) => {
+    localStorage.setItem("SignUpJWT", res.access_token);
+    navigate("/");
+  };
+
+  const alertHandle = (res) => {
+    if (res.message) {
+      alert(res.message);
+    } else return;
+  };
+
+  const requestHandle = (res) => {
+    alertHandle(res);
+    navigateLoginHandle(res);
   };
 
   const signUpButtonHandle = () => {
-    fetch(`http://localhost:8000/auth/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: `${userID}`,
-        password: `${userPW}`,
-      }),
-    })
+    fetch(
+      `https://5co7shqbsf.execute-api.ap-northeast-2.amazonaws.com/production/auth/signup`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: `${userID}`,
+          password: `${userPW}`,
+        }),
+      }
+    )
       .then((res) => res.json())
-      .then((res) => localStorage.setItem("SignUpJWT", res.access_token))
-      .then(() => navigateLoginHandle());
+      .then((res) => requestHandle(res));
   };
 
   return (
