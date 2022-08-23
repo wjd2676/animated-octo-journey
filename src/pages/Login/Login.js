@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 const Login = () => {
   const [userID, setUserID] = useState("");
@@ -8,8 +8,13 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const navigateTodoHandle = (res) => {
+    if (res) return navigate("/todo");
+    else alert("로그인실패");
+  };
+
   const signInButtonHandle = () => {
-    fetch(`http://localhost:8000/auth/signup`, {
+    fetch(`http://localhost:8000/auth/signin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,15 +25,15 @@ const Login = () => {
       }),
     })
       .then((res) => res.json())
-      .then((res) => localStorage.setItem("SignUpJWT", res.access_token));
-    if (localStorage.getItem("SignUpJWT")) return navigate("/");
-    else alert("회원가입실패");
+      .then((res) => navigateTodoHandle(res.access_token));
   };
-
   return (
     <LoginContainer>
+      {!localStorage.getItem("SignUpJWT") && (
+        <Navigate to="/signup" replace={true} />
+      )}
       <LoginContent>
-        <LoginText>SignUp</LoginText>
+        <LoginText>Login</LoginText>
         <LoginInput
           onChange={(e) => setUserID(e.target.value)}
           type="text"

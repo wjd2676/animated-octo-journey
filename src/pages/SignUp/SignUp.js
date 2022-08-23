@@ -8,6 +8,11 @@ const SignUp = () => {
 
   const navigate = useNavigate();
 
+  const navigateLoginHandle = () => {
+    if (localStorage.getItem("SignUpJWT")) return navigate("/");
+    else alert("회원가입실패");
+  };
+
   const signUpButtonHandle = () => {
     fetch(`http://localhost:8000/auth/signup`, {
       method: "POST",
@@ -20,9 +25,8 @@ const SignUp = () => {
       }),
     })
       .then((res) => res.json())
-      .then((res) => localStorage.setItem("SignUpJWT", res.access_token));
-    if (localStorage.getItem("SignUpJWT")) return navigate("/");
-    else alert("회원가입실패");
+      .then((res) => localStorage.setItem("SignUpJWT", res.access_token))
+      .then(() => navigateLoginHandle());
   };
 
   return (
