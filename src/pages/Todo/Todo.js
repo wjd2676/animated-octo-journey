@@ -8,7 +8,7 @@ const Todo = () => {
   const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [updateTodo, setUpdateTodo] = useState("");
-  const [updateChecked, setUpdateChecked] = useState();
+  const [updateChecked, setUpdateChecked] = useState(false);
 
   useEffect(() => {
     fetch(
@@ -168,7 +168,7 @@ const TodoGetContent = styled.div`
   border: 2px solid blue;
   width: 40%;
   min-width: 600px;
-  min-height: 600px;
+  min-height: 400px;
 `;
 
 const TodoList = styled.div`
